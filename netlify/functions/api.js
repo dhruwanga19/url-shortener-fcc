@@ -35,7 +35,8 @@ app.post("/api/shorturl", (req, res) => {
     return res.json({ error: "invalid url" });
   }
 
-  dns.lookup(url.parse(originalUrl).hostname, (err) => {
+  const hostname = new URL(originalUrl).hostname;
+  dns.lookup(hostname, (err) => {
     if (err) {
       return res.json({ error: "invalid url" });
     }
@@ -54,7 +55,7 @@ app.get("/api/shorturl/:short_url", (req, res) => {
 
   if (originalUrl) {
     // res.json({ original_url: originalUrl });
-    res.redirect(originalUrl.url);
+    res.redirect(originalUrl);
   } else {
     res.json({ error: "No short URL found for the given input" });
   }
