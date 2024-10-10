@@ -38,11 +38,10 @@
 </head>
 <body>
     <h1>URL Shortener Microservice</h1>
-    <form id="url-form">
-        <input type="text" name="url" id="url-input" placeholder="Enter a URL" required>
+    <form action="/api/shorturl" method="post">
+        <input type="text" name="url" placeholder="Enter a URL" required>
         <input type="submit" value="Shorten URL">
     </form>
-    <div id="result"></div>
     
     <h2>Example Usage:</h2>
     <p>POST a URL to <code>/api/shorturl</code></p>
@@ -53,31 +52,21 @@
     <p>You will be redirected to the original URL</p>
 
     <script>
-        document.getElementById('url-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const url = document.getElementById('url-input').value;
-            try {
-                const response = await fetch('/api/shorturl', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ url }),
-                });
-                const data = await response.json();
-                if (data.error) {
-                    document.getElementById('result').textContent = `Error: ${data.error}`;
-                } else {
-                    document.getElementById('result').innerHTML = `
-                        Original URL: ${data.original_url}<br>
-                        Short URL: <a href="/api/shorturl/${data.short_url}">/api/shorturl/${data.short_url}</a>
-                    `;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('result').textContent = 'An error occurred. Please try again.';
-            }
-        });
+        // Check if the current path matches the pattern for a short URL
+        const match = window.location.pathname.match(/^\/api\/shorturl\/(\d+)$/);
+        if (match) {
+            const shortUrl = match[1];
+            fetch(`/api/shorturl/${shortUrl}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.original_url) {
+                        window.location.href = data.original_url;
+                    } else {
+                        console.error('Error:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>
