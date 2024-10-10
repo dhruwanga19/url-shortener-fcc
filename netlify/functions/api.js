@@ -5,11 +5,12 @@ const url = require("url");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
 
 // In-memory storage for URL mappings (Note: This will reset on each function invocation)
 const urlDatabase = new Map();
 let counter = 1;
+
+app.use(cors());
 
 // Middleware to parse JSON bodies
 app.use(express.json());

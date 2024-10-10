@@ -38,10 +38,11 @@
 </head>
 <body>
     <h1>URL Shortener Microservice</h1>
-    <form action="/api/shorturl" method="post">
-        <input type="text" name="url" placeholder="Enter a URL" required>
+    <form id="url-form">
+        <input type="text" name="url" id="url-input" placeholder="Enter a URL" required>
         <input type="submit" value="Shorten URL">
     </form>
+    <div id="result"></div>
     
     <h2>Example Usage:</h2>
     <p>POST a URL to <code>/api/shorturl</code></p>
@@ -50,5 +51,33 @@
     <h2>To use a short URL:</h2>
     <p>Visit <code>/api/shorturl/&lt;short_url&gt;</code></p>
     <p>You will be redirected to the original URL</p>
+
+    <script>
+        document.getElementById('url-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('url-input').value;
+            try {
+                const response = await fetch('/api/shorturl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url }),
+                });
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('result').textContent = `Error: ${data.error}`;
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        Original URL: ${data.original_url}<br>
+                        Short URL: <a href="/api/shorturl/${data.short_url}">/api/shorturl/${data.short_url}</a>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
 </body>
 </html>
