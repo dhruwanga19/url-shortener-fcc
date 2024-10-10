@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener Microservice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 5px;
+        }
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener Microservice</h1>
+    <form action="/api/shorturl" method="post">
+        <input type="text" name="url" placeholder="Enter a URL" required>
+        <input type="submit" value="Shorten URL">
+    </form>
+    
+    <h2>Example Usage:</h2>
+    <p>POST a URL to <code>/api/shorturl</code></p>
+    <p>Example response: <code>{ "original_url": "https://www.example.com", "short_url": 1 }</code></p>
+    
+    <h2>To use a short URL:</h2>
+    <p>Visit <code>/api/shorturl/&lt;short_url&gt;</code></p>
+    <p>You will be redirected to the original URL</p>
+</body>
+</html>
