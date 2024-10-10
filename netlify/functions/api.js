@@ -1,8 +1,8 @@
 const express = require("express");
 const serverless = require("serverless-http");
-const cors = require("cors");
 const dns = require("dns");
-const { URL } = require("url");
+const url = require("url");
+const cors = require("cors");
 
 const app = express();
 
@@ -10,45 +10,41 @@ const app = express();
 const urlDatabase = new Map();
 let counter = 1;
 
-// Enable CORS for all routes
 app.use(cors());
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+// Middleware to parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 
 // Helper function to validate URL
 function isValidUrl(string) {
   try {
-    new URL(string);
-    return true;
+    const newUrl = new URL(string);
+    return newUrl.protocol === "http:" || newUrl.protocol === "https:";
   } catch (err) {
     return false;
   }
 }
 
 // POST endpoint to create short URL
-app.post("/api/shorturl", async (req, res) => {
-  // Netlify Functions automatically parse the body
-  const { url: originalUrl } = req.body;
+app.post("/api/shorturl", (req, res) => {
+  const originalUrl = req.body.url;
 
   if (!isValidUrl(originalUrl)) {
     return res.json({ error: "invalid url" });
   }
 
-  const urlObject = new URL(originalUrl);
-
-  try {
-    await new Promise((resolve, reject) => {
-      dns.lookup(urlObject.hostname, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
+  dns.lookup(url.parse(originalUrl).hostname, (err) => {
+    if (err) {
+      return res.json({ error: "invalid url" });
+    }
 
     const shortUrl = counter++;
     urlDatabase.set(shortUrl.toString(), originalUrl);
 
     res.json({ original_url: originalUrl, short_url: shortUrl });
-  } catch (error) {
-    res.json({ error: "invalid url" });
-  }
+  });
 });
 
 // GET endpoint to redirect to original URL
@@ -61,12 +57,6 @@ app.get("/api/shorturl/:short_url", (req, res) => {
   } else {
     res.json({ error: "No short URL found for the given input" });
   }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: "Internal Server Error" });
 });
 
 module.exports.handler = serverless(app);
